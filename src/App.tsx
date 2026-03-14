@@ -410,16 +410,32 @@ try {
   }, []);
 
   /* ---------------- EXPORT ---------------- */
-  const exportZip = async () => {
-    const zip = new JSZip();
-    nodes.forEach((n) => {
-      if (n.type === "file") {
-        zip.file(n.name, n.content || "");
-      }
-    });
-    const content = await zip.generateAsync({ type: "blob" });
-    saveAs(content, projectName + ".zip");
+const exportZip = async () => {
+  const zip = new JSZip();
+
+  const getPath = (node: FileNode): string => {
+    let path = node.name;
+    let parent = nodes.find((n) => n.id === node.parent);
+
+    while (parent) {
+      path = parent.name + "/" + path;
+      parent = nodes.find((n) => n.id === parent.parent);
+    }
+
+    return path;
   };
+
+  nodes.forEach((n) => {
+    if (n.type === "file") {
+      const filePath = getPath(n);
+      zip.file(filePath, n.content || "");
+    }
+  });
+
+  const content = await zip.generateAsync({ type: "blob" });
+  saveAs(content, projectName + ".zip");
+};
+
 
   /* ---------------- MONACO ---------------- */
   const handleEditorMount = (editor: any, monaco: any) => {
