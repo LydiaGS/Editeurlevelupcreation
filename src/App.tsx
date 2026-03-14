@@ -599,6 +599,12 @@ try {
             <Icons.Download />
             <span className="hidden sm:inline">Export ZIP</span>
           </button>
+          <button
+  onClick={() => window.location.href = "http://127.0.0.1:5501/dashboard.html"}
+  className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white text-sm font-medium transition-all"
+>
+  Dashboard
+</button>
         </div>
       </header>
 
