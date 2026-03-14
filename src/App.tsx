@@ -3,7 +3,7 @@ import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import Editor from "@monaco-editor/react";
 import { emmetHTML } from "emmet-monaco-es";
-
+import logo from "./Logo.png";
 type NodeType = "file" | "folder";
 
 type FileNode = {
@@ -525,13 +525,14 @@ try {
         
         {/* Logo & Project Name */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
-            <Icons.Logo />
-            <span className="font-semibold text-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              LevelUp Code
-            </span>
-          </div>
-          
+<div className="flex items-center gap-2">
+<img src={logo} className="w-30 h-15 object-contain" alt="LevelUp Logo" />
+
+
+  <span className="font-semibold text-lg bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+    LevelUpCreation Code
+  </span>
+</div> 
           <div className="hidden sm:flex items-center bg-[#0d1117] rounded-lg border border-white/10 overflow-hidden">
             <span className="px-3 text-slate-500 text-sm">📁</span>
             <input
