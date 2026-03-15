@@ -129,7 +129,7 @@ const Icons = {
 export default function MiniCodeEditor() {
   const editorRef = useRef<any>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-
+  const fileInputRef = useRef<HTMLInputElement>(null);
   /* ---------------- PROJECT ---------------- */
   const [projectName, setProjectName] = useState("levelup-project");
   const [npmPackage, setNpmPackage] = useState("");
@@ -160,7 +160,6 @@ export default function MiniCodeEditor() {
 <body>
 
   <div class="card">
-    <div class="icon">🚀</div>
     <h1>Hello Level Up Creation</h1>
     <p>Mini éditeur créé par Level Up Creation</p>
     <button id="btn">Essaye-moi</button>
@@ -355,7 +354,10 @@ button:hover {
     const htmlFile = nodes.find((n) => n.name.endsWith(".html"))?.content || "";
     const cssFile = nodes.find((n) => n.name.endsWith(".css"))?.content || "";
     const jsFile = nodes.find((n) => n.name.endsWith(".js"))?.content || "";
-
+const images = nodes
+  .filter((n) => n.name.match(/\.(png|jpg|jpeg|gif|svg)$/))
+  .map((n) => `<img src="${n.content}" style="max-width:200px;">`)
+  .join("");
     const cdn = npmPackage
       ? `<script src="https://cdn.jsdelivr.net/npm/${npmPackage}"></script>`
       : "";
@@ -410,6 +412,29 @@ try {
   }, []);
 
   /* ---------------- EXPORT ---------------- */
+const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = () => {
+    const base64 = reader.result as string;
+
+    const newNode: FileNode = {
+      id: Date.now(),
+      name: file.name,
+      type: "file",
+      parent: 1, // dossier src
+      language: "plaintext",
+      content: base64
+    };
+
+    setNodes([...nodes, newNode]);
+  };
+
+  reader.readAsDataURL(file);
+};
 const exportZip = async () => {
   const zip = new JSZip();
 
@@ -454,6 +479,7 @@ const exportZip = async () => {
       })
       .map((node) => {
         const ext = node.name.split(".").pop();
+        const isImage = ["png","jpg","jpeg","gif","svg","webp"].includes(ext || "");
         const isOpen = openFolders.includes(node.id);
         const isActive = activeFile?.id === node.id;
 
@@ -490,11 +516,13 @@ const exportZip = async () => {
                   {isOpen ? <Icons.ChevronDown /> : <Icons.ChevronRight />}
                 </span>
               )}
-              {node.type === "folder" ? (
-                <Icons.Folder open={isOpen} />
-              ) : (
-                <Icons.File ext={ext} />
-              )}
+{node.type === "folder" ? (
+  <Icons.Folder open={isOpen} />
+) : isImage ? (
+  <span className="text-pink-400 text-sm">IMG</span>
+) : (
+  <Icons.File ext={ext} />
+)}
               <span className="flex-1 truncate text-sm font-medium">{node.name}</span>
               
               <div className="hidden group-hover:flex items-center gap-1">
@@ -608,7 +636,12 @@ const exportZip = async () => {
             <Icons.NewFolder />
             <span className="hidden sm:inline">Dossier</span>
           </button>
-          
+          <button
+  onClick={() => fileInputRef.current?.click()}
+  className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm"
+>
+  Import image
+</button>
           <button
             onClick={exportZip}
             className="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white text-sm font-medium transition-all shadow-lg shadow-indigo-500/20"
@@ -630,6 +663,14 @@ Espace Client
 </button>
         </div>
       </header>
+
+<input
+  type="file"
+  accept="image/*"
+  ref={fileInputRef}
+  style={{ display: "none" }}
+  onChange={handleImageUpload}
+/>
 
       {/* ═══════════════════ MAIN CONTENT ═══════════════════ */}
       <div className="flex flex-1 overflow-hidden">
